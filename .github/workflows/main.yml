@@ -1,0 +1,42 @@
+name: PENGIRIMAN ALUR KERJA
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+
+jobs:
+  UUIDGEN:
+    name: UUIDGEN
+    runs-on: ubuntu-latest
+    steps:
+      - name: UUIDGEN
+        uses: actions/checkout@v3
+
+      - name: UUIDGEN
+        run: |
+          git config --local user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --local user.name "${GITHUB_ACTOR}"
+          git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git pull
+          git commit --allow-empty -m "$(uuidgen)"
+          git push
+
+  WORKFLOW:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ALUR KERJA INI
+        if: github.event.action != 'Respon Alur Kerja'
+        run: |
+          curl -X POST https://api.github.com/repos/crenas/animasi/dispatches \
+          -H 'Accept: application/vnd.github.everest-preview+json' \
+          -u ${{ secrets.ACCESS_TOKEN }} \
+          --data '{"event_type": "Mulai Alur Kerja", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
+
+      - name: TANGGAPAN ALUR KERJA
+        if: github.event.action == 'Respon Alur Kerja'
+        run: |
+          echo "RESPONSE received from '${{ github.event.client_payload.repository }}'"
+          curl -X POST https://api.github.com/repos/crenas/animasi/dispatches \
+          -H 'Accept: application/vnd.github.everest-preview+json' \
+          -u ${{ secrets.ACCESS_TOKEN }} \
+          --data '{"event_type": "Mulai Alur Kerja", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
